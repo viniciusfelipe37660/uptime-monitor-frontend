@@ -1,36 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Uptime Monitor — Frontend
 
-## Getting Started
+Dashboard em Next.js para o [backend](https://github.com/SEU_USUARIO/uptime-monitor-backend): cadastro de projetos/monitores, histórico de checagens com gráfico de latência, incidentes e página pública de status.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router) + React 19 + TypeScript
+- Tailwind CSS
+- Recharts
+
+## Rodando localmente
 
 ```bash
+cp .env.local.example .env.local   # aponte NEXT_PUBLIC_API_URL para o backend
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Páginas
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `/` — landing
+- `/login`, `/register` — autenticação
+- `/dashboard` — projetos do usuário
+- `/dashboard/projects/[id]` — monitores do projeto
+- `/dashboard/monitors/[id]` — gráfico de latência + incidentes
+- `/status/[slug]` — página pública de status (sem autenticação)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Segurança
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Sem token em `localStorage`**: a sessão vive inteiramente em cookie `httpOnly` setado pelo backend; o frontend nunca lê ou guarda o JWT (mitiga roubo via XSS)
+- **CSRF**: todo request de mutação (POST/PUT/PATCH/DELETE) envia o header `X-CSRF-Token` lido do cookie não-httpOnly `csrf_token`, exigido pelo backend (ver `src/lib/api.ts`)
+- **Headers de segurança** (`next.config.ts`): `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`
+- **Validação client-side espelha as regras do backend** (ex: senha mínima de 12 caracteres, slug restrito a `[a-z0-9-]`), mas a validação real acontece no servidor — o frontend nunca é a única linha de defesa
+- **CI**: lint + type-check + build + `npm audit --audit-level=high` em todo PR; Dependabot semanal
