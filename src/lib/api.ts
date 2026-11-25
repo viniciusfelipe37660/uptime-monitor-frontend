@@ -1,4 +1,6 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+// Relative — requests go through this app's own domain (see next.config.ts
+// rewrites), which proxies to the backend. Keeps auth/CSRF cookies first-party.
+const API_URL = '/api';
 
 export class ApiError extends Error {
   constructor(

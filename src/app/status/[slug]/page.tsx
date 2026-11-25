@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { PublicStatus } from '@/lib/types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+const API_URL = process.env.BACKEND_URL ?? 'http://localhost:3000';
 
 async function getStatus(slug: string): Promise<PublicStatus | null> {
   const res = await fetch(`${API_URL}/status/${slug}`, {
